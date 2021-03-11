@@ -1,99 +1,69 @@
-let sample_object = {
-    lev_1_first_key: "first_value",
-    lev_1_second_key: 10,
-    lev_1_third_key: {
-        lev_2_first_key: "first_value",
-        lev_2_second_key: [1, 2, { 1:22, 2:[5, 4 , 2 , 6 ,8] }, 4],
-        lev_2_third_key: {
-            lev_3_first_key: "first_value",
-            lev_3_second_key: 30
-        }
-    }
-}
-
 function makeObjectDeepCopy(objectToCopy) {
     if (typeof(objectToCopy) != "object" && objectToCopy != null) {
-        console.log("function \'makeObjectDeepCopy()\' requires object as the only argument), otherwise \"undefined\" is returned");
         return undefined;
     }
     if (typeof objectDeepCopy == "undefined") {
         var objectDeepCopy = {};
     };
     for (let key in objectToCopy) {
-            if (typeof(objectToCopy[key]) == "object" && objectToCopy[key] != null) {
-                if (Array.isArray(objectToCopy[key])) {
-                    objectDeepCopy[key] = Object.values(makeObjectDeepCopy(objectToCopy[key]))
-                } else {
-                    objectDeepCopy[key] = makeObjectDeepCopy(objectToCopy[key]);
-                }
+        if (typeof(objectToCopy[key]) == "object" && objectToCopy[key] != null) {
+            if (Array.isArray(objectToCopy[key])) {
+                objectDeepCopy[key] = Object.values(makeObjectDeepCopy(objectToCopy[key]))
             } else {
-                objectDeepCopy[key] = objectToCopy[key];
+                objectDeepCopy[key] = makeObjectDeepCopy(objectToCopy[key]);
             }
-        }
-        return objectDeepCopy
-}
-
-function isObject(variable) {
-    return (typeof(variable) == "object" && variable != null)
-}
-
-function compareObjects(first, second) {
-    let keysMatch = true;
-    let lenghFirst = Object.keys(first).length;
-    console.log("first object has: " + lenghFirst + " keys.")
-    let lenghSecond = Object.keys(second).length;
-    console.log("second object has: " + lenghSecond + " keys.")
-    keysMatch = (lenghFirst == lenghSecond)
-    console.log("number of keys match: " + keysMatch)
-
-    for (let keyFirst in first) {
-        let keyMatchFound = false;
-        for (let keySecond in second) {
-            if (keyFirst == keySecond) {
-                keyMatchFound = true;
-            }
-        }
-        if (keyMatchFound == false) {
-            keysMatch = false;
-            break
-        }
-    }
-    if (!keysMatch) {
-        console.log("keys DO NOT match in both objects. Objects are different")
-        return false
-    } else {
-        console.log("keys match in both objects")
-        return compareKeyObj(first, second)
-    }
-
-}
-
-function compareKeyObj(first, second) {
-    let valuesMatch = true
-    for (let key in first) {
-        if (first[key] == second[key] && !isObject(first[key]) && !isObject(second[key])) {
-            console.log("values for key " + key + " match in both objects")
-            continue
-        } else if (isObject(first[key]) && isObject(second[key])) {
-            console.log("values for key " + key + " are both objects")
-            valuesMatch = compareKeyObj(first[key], second[key])
         } else {
-            console.log("values for key " + key + " DO NOT match in both objects. Objects are different")
-            valuesMatch = false
+            objectDeepCopy[key] = objectToCopy[key];
         }
     }
-    return valuesMatch
+    return objectDeepCopy
 }
+// + 2) Написать функцию, которая принимает три аргумента: массив чисел, первое значение интервала, второе значение интервала.
+// + Результатом вызова функции должен быть массив из значений, переданного массива, которые входят в этот интервал (концы включая).
+// + Договоримся использовать только массивы чисел.
+// + При этом значения интервала могут быть только числами.
+// + Если в качестве первого параметра передан не массив или массив, содержащий не только числа - кидать ошибку (throw new Error('error message')).
+// + Если хотя бы одно из значений интервала - невалидное число - также кидать ошибку.
+// + Если первое значение интервала < второго, то считать за интервал значения от первого до второго, в ином случае - от второго до первого.
+// Функция должна называться selectFromInterval. Это важно, т.к. проверять буду тестами.
+// > Примеры:
+// Вызываем функцию: selectFromInterval([1,3,5], 5, 2)
+// Получаем результат: [3,5]
+// Вызываем функцию: selectFromInterval([-2, -15, 0, 4], -13, -5)
+// Получаем результат: []
+// Вызываем функцию: selectFromInterval(['aaa'], 2, 3)
+// Получаем результат: Ошибка!
 
-// Object.assign
 
-// object spread
 
-let test = sample_object
-let deepCopy = makeObjectDeepCopy(test)
-console.log(test)
-console.log(deepCopy)
+function selectFromInterval(arrayOfNumbers, first, second) {
 
-let equal = compareObjects(deepCopy, test)
-console.log(equal)
-// console.log(sample_object == deepCopy)
+    if ((Array.isArray(arrayOfNumbers) && !arrayOfNumbers.some(isNaN)) &&
+        !isNaN(first) && Number.isInteger(+first) &&
+        !isNaN(second) && Number.isInteger(+second)) {
+        let [begin, end] = (first < second) ? [first, second] : [second, first];
+        // условие и примеры прямо не требуют "реверсивного среза" массива
+        // при отрицательных значениях интервалов
+        if (begin > arrayOfNumbers.length ||
+            end < 1) {
+            return []
+        }
+        begin = (begin < 1) ? 1 : begin;
+        end = (end > arrayOfNumbers.length) ? arrayOfNumbers.length : end;
+        return arrayOfNumbers.slice(--begin, end)
+    } else {
+        throw new Error('Ошибка!');
+    }
+}
+console.log(selectFromInterval([1, 3, 5], -2, 5));
+console.log(selectFromInterval([1, 3, 5], 2, -5));
+console.log(selectFromInterval([1, 3, 5], -2, -5));
+
+
+
+// console.log(selectFromInterval([1, 3, 5], 5, 2));
+// // [3,5]
+// console.log(selectFromInterval([-2, -15, 0, 4], -13, -5));
+// // []
+// console.log(selectFromInterval(['aaa'], 2, 3))
+// Ошибка
