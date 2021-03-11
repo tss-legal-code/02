@@ -1,38 +1,9 @@
-// 1) Написать свою функцию для глубокого копирования объектов. При этом алгоритм должен осуществляться вручную (никаких вариантов с использованием готовых библиотек и даже JSON.stringify() + JSON.parse(), за это сразу 0 баллов за первую задачу). Функция должна называться makeObjectDeepCopy. Принимать функция должна один параметр - объект, копию которого нужно сделать. Это важно, т.к. проверять буду тестами.
-
-
-let another_sample_object = {
-    'instanceOfFunction': new Function('return "test"'),
-    'undefiendCheck': undefined,
-    0: null,
-    1: 'one',
-    2: 'two',
-    foo: n => {
-        return n;
-    },
-    nestedObjects: {
-        nastedArrays: [
-            [0, 1, 2],
-            [3, 4, {
-                objInArray: 12334
-            }], {
-                nike: 'sneakers'
-            }
-        ],
-        nestedFunction: {
-            prostoPrivet: function() {
-                return 'test';
-            }
-        }
-    }
-}
-
 let sample_object = {
     lev_1_first_key: "first_value",
     lev_1_second_key: 10,
     lev_1_third_key: {
         lev_2_first_key: "first_value",
-        lev_2_second_key: 20,
+        lev_2_second_key: [1, 2, { 1:22, 2:[5, 4 , 2 , 6 ,8] }, 4],
         lev_2_third_key: {
             lev_3_first_key: "first_value",
             lev_3_second_key: 30
@@ -41,23 +12,25 @@ let sample_object = {
 }
 
 function makeObjectDeepCopy(objectToCopy) {
+    if (typeof(objectToCopy) != "object" && objectToCopy != null) {
+        console.log("function \'makeObjectDeepCopy()\' requires object as the only argument), otherwise \"undefined\" is returned");
+        return undefined;
+    }
     if (typeof objectDeepCopy == "undefined") {
         var objectDeepCopy = {};
     };
-    if (!isObject(objectToCopy)) {
-        console.log("function \'makeObjectDeepCopy()\' requires object as the only argument), otherwise \"undefined\" is returned");
-        return undefined;
-    } else {
-
-        for (let key in objectToCopy) {
-            if (isObject(objectToCopy[key])) {
-                objectDeepCopy[key] = makeObjectDeepCopy(objectToCopy[key]);
+    for (let key in objectToCopy) {
+            if (typeof(objectToCopy[key]) == "object" && objectToCopy[key] != null) {
+                if (Array.isArray(objectToCopy[key])) {
+                    objectDeepCopy[key] = Object.values(makeObjectDeepCopy(objectToCopy[key]))
+                } else {
+                    objectDeepCopy[key] = makeObjectDeepCopy(objectToCopy[key]);
+                }
             } else {
                 objectDeepCopy[key] = objectToCopy[key];
             }
         }
         return objectDeepCopy
-    }
 }
 
 function isObject(variable) {
@@ -112,11 +85,15 @@ function compareKeyObj(first, second) {
     return valuesMatch
 }
 
-let deepCopy = makeObjectDeepCopy(sample_object)
+// Object.assign
 
-console.log(sample_object)
+// object spread
+
+let test = sample_object
+let deepCopy = makeObjectDeepCopy(test)
+console.log(test)
 console.log(deepCopy)
 
-let equal = compareObjects(deepCopy, sample_object)
+let equal = compareObjects(deepCopy, test)
 console.log(equal)
 // console.log(sample_object == deepCopy)
